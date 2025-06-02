@@ -1,0 +1,24 @@
+name: Autograding Tests
+on:
+  watch:
+    types: [started] # for github action visibility
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      AUTO_GRADER_PASS_PHRASE:
+        required: true
+        type: string
+        description: flex member only
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    if: github.event_name != 'watch'
+    uses: flex-classroom/assignment-github-actions/.github/workflows/flex-be-training-test.yml@main
+    secrets: inherit
+    with:
+      AUTO_GRADER_PASS_PHRASE: ${{ inputs.AUTO_GRADER_PASS_PHRASE }}
