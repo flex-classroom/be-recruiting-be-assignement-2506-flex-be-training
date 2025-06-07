@@ -71,6 +71,8 @@ class EmployeeApiController(
         @PathVariable companyId: Long,
         @PathVariable employeeId: Long,
     ): EmployeeAssignmentHistoryResponse {
-        TODO("구현해주세요")
+        val assignmentsResult = assignmentQueryService.getAssignments(companyId, employeeId)
+
+        return EmployeeAssignmentHistoryResponse.of(assignmentsResult)
     }
 }

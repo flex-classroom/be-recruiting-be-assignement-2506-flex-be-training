@@ -4,10 +4,10 @@
 
 package team.flex.training.corehr.employee.dto
 
+import team.flex.training.corehr.assignment.query.AssignmentDto
 import team.flex.training.corehr.assignment.query.CompanyDto
-import team.flex.training.corehr.assignment.query.DepartmentAssignmentDto
 import team.flex.training.corehr.assignment.query.EmployeeAssignmentResult
-import team.flex.training.corehr.assignment.query.JobAssignmentDto
+import team.flex.training.corehr.assignment.query.EmployeeAssignmentsResult
 import java.time.LocalDate
 
 class EmployeeAssignmentResponse(
@@ -18,7 +18,7 @@ class EmployeeAssignmentResponse(
         fun of(result: EmployeeAssignmentResult): EmployeeAssignmentResponse =
             EmployeeAssignmentResponse(
                 EmployeeDto.of(result.employee, result.company),
-                AssignmentInfoDto.of(result.departmentAssignment, result.jobRoleAssignment),
+                AssignmentInfoDto.from(result.assignment),
             )
     }
 }
@@ -26,7 +26,15 @@ class EmployeeAssignmentResponse(
 class EmployeeAssignmentHistoryResponse(
     val employee: EmployeeDto,
     val assignments: List<AssignmentInfoDto>,
-)
+) {
+    companion object {
+        fun of(result: EmployeeAssignmentsResult): EmployeeAssignmentHistoryResponse =
+            EmployeeAssignmentHistoryResponse(
+                EmployeeDto.of(result.employee, result.company),
+                result.assignments.map(AssignmentInfoDto::from),
+            )
+    }
+}
 
 class EmployeeDto(
     val employeeId: Long,
@@ -59,14 +67,14 @@ class AssignmentInfoDto(
     val jobRoleName: String?,
 ) {
     companion object {
-        fun of(departmentAssignment: DepartmentAssignmentDto?, jobAssignment: JobAssignmentDto?): AssignmentInfoDto =
+        fun from(assignmentDto: AssignmentDto): AssignmentInfoDto =
             AssignmentInfoDto(
-                departmentAssignment?.startDate ?: jobAssignment?.startDate ?: LocalDate.MIN,
-                departmentAssignment?.endDate ?: jobAssignment?.endDate ?: LocalDate.MIN,
-                departmentAssignment?.departmentId,
-                departmentAssignment?.departmentName,
-                jobAssignment?.jobRoleId,
-                jobAssignment?.jobRoleName,
+                assignmentDto.startDate,
+                assignmentDto.endDate,
+                assignmentDto.departmentId,
+                assignmentDto.departmentName,
+                assignmentDto.jobRoleId,
+                assignmentDto.jobRoleName,
             )
     }
 }
