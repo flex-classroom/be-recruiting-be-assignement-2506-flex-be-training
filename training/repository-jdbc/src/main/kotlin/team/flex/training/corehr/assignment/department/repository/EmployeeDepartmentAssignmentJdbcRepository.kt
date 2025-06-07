@@ -38,7 +38,6 @@ interface EmployeeDepartmentAssignmentJdbcRepository : CrudRepository<EmployeeDe
     )
     fun findByEmployeeIdAndDateBetween(employeeId: Long, targetDate: LocalDate): DepartmentAssignmentDto?
 
-
     @Query(
         """
             select eda.id, eda.start_date, eda.end_date, eda.department_id, d.name as department_name

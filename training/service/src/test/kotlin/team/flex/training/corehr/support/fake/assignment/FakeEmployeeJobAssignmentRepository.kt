@@ -44,7 +44,7 @@ class FakeEmployeeJobAssignmentRepository : EmployeeJobAssignmentRepository {
 
     override fun findByEmployeeIdAndDateBetween(
         employeeIdentity: EmployeeIdentity,
-        targetDate: LocalDate
+        targetDate: LocalDate,
     ): JobRoleAssignmentDto? {
         return db.values.filter { it.employeeId == employeeIdentity.employeeId }
             .map {
@@ -56,8 +56,8 @@ class FakeEmployeeJobAssignmentRepository : EmployeeJobAssignmentRepository {
                     "직무",
                 )
             }.find {
-                (targetDate.isEqual(it.startDate) || targetDate.isAfter(it.startDate))
-                    && (targetDate.isEqual(it.endDate) || targetDate.isBefore(it.endDate))
+                (targetDate.isEqual(it.startDate) || targetDate.isAfter(it.startDate)) &&
+                    (targetDate.isEqual(it.endDate) || targetDate.isBefore(it.endDate))
             }
     }
 

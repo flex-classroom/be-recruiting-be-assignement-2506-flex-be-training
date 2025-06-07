@@ -18,6 +18,7 @@ import team.flex.training.corehr.company.department.repository.DepartmentJdbcRep
 import team.flex.training.corehr.company.department.repository.DepartmentRepositoryAutoConfiguration
 import team.flex.training.corehr.employee.EmployeeIdentity
 import team.flex.training.corehr.employee.of
+import team.flex.training.corehr.global.config.RowMapperConfiguration
 import team.flex.training.corehr.support.fixture.assignment.EmployeeDepartmentAssignmentEntityFixture
 import team.flex.training.corehr.support.fixture.company.DepartmentFixture
 import java.time.LocalDate
@@ -25,6 +26,7 @@ import java.time.LocalDate
 @Import(
     EmployeeDepartmentAssignmentRepositoryAutoConfiguration::class,
     DepartmentRepositoryAutoConfiguration::class,
+    RowMapperConfiguration::class,
 )
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

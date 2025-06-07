@@ -5,4 +5,4 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
 
 @AutoConfiguration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-class TransactionConfig
+class TransactionConfiguration
