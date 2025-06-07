@@ -2,6 +2,7 @@ package team.flex.training.corehr.assignment.department.repository
 
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
+import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignment
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentModel
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentRepository
 import team.flex.training.corehr.employee.EmployeeIdentity
@@ -24,6 +25,16 @@ interface EmployeeDepartmentAssignmentJdbcRepository : CrudRepository<EmployeeDe
         startDate: LocalDate,
         endDate: LocalDate,
     ): Boolean
+
+    @Query(
+        """
+            select * 
+            from employee_department_assignment eda 
+            where eda.employee_id = :employeeId 
+                and (:targetDate between eda.start_date and eda.end_date)
+        """,
+    )
+    fun findByEmployeeIdAndDateBetween(employeeId: Long, targetDate: LocalDate): EmployeeDepartmentAssignmentEntity?
 }
 
 class EmployeeDepartmentAssignmentRepositoryImpl(
@@ -43,8 +54,29 @@ class EmployeeDepartmentAssignmentRepositoryImpl(
     override fun save(departmentAssignment: EmployeeDepartmentAssignmentModel): EmployeeDepartmentAssignmentModel =
         employeeDepartmentAssignmentJdbcRepository.save(departmentAssignment.toEntity())
 
+    override fun findByEmployeeIdAndDateBetween(
+        employeeIdentity: EmployeeIdentity,
+        targetDate: LocalDate,
+    ): EmployeeDepartmentAssignmentModel? {
+        return employeeDepartmentAssignmentJdbcRepository.findByEmployeeIdAndDateBetween(
+            employeeIdentity.employeeId,
+            targetDate,
+        )?.toModel()
+    }
+
     private fun EmployeeDepartmentAssignmentModel.toEntity(): EmployeeDepartmentAssignmentEntity =
         EmployeeDepartmentAssignmentEntity(
+            employeeId = employeeId,
+            departmentId = departmentId,
+            startDate = startDate,
+            endDate = endDate,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
+    private fun EmployeeDepartmentAssignmentEntity.toModel(): EmployeeDepartmentAssignmentModel =
+        EmployeeDepartmentAssignment(
+            employeeDepartmentAssignmentId = employeeDepartmentAssignmentId,
             employeeId = employeeId,
             departmentId = departmentId,
             startDate = startDate,

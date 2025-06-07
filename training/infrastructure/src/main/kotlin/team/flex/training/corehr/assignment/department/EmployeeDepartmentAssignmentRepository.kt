@@ -11,4 +11,6 @@ interface EmployeeDepartmentAssignmentRepository {
     ): Boolean
 
     fun save(departmentAssignment: EmployeeDepartmentAssignmentModel): EmployeeDepartmentAssignmentModel
+
+    fun findByEmployeeIdAndDateBetween(employeeIdentity: EmployeeIdentity, targetDate: LocalDate): EmployeeDepartmentAssignmentModel?
 }
