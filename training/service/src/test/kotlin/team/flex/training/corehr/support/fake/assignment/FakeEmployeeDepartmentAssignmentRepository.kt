@@ -3,6 +3,7 @@ package team.flex.training.corehr.support.fake.assignment
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignment
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentModel
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentRepository
+import team.flex.training.corehr.assignment.department.dto.DepartmentAssignmentDto
 import team.flex.training.corehr.company.department.DepartmentModel
 import team.flex.training.corehr.employee.EmployeeIdentity
 import team.flex.training.corehr.employee.EmployeeModel
@@ -44,11 +45,32 @@ class FakeEmployeeDepartmentAssignmentRepository : EmployeeDepartmentAssignmentR
     override fun findByEmployeeIdAndDateBetween(
         employeeIdentity: EmployeeIdentity,
         targetDate: LocalDate
-    ): EmployeeDepartmentAssignmentModel? {
+    ): DepartmentAssignmentDto? {
         return db.values.filter { it.employeeId == employeeIdentity.employeeId }
-            .find {
+            .map {
+                DepartmentAssignmentDto(
+                    it.employeeDepartmentAssignmentId,
+                    it.startDate,
+                    it.endDate,
+                    it.departmentId,
+                    "부서",
+                )
+            }.find {
                 (targetDate.isEqual(it.startDate) || targetDate.isAfter(it.startDate))
                     && (targetDate.isEqual(it.endDate) || targetDate.isBefore(it.endDate))
+            }
+    }
+
+    override fun findByEmployeeId(employeeIdentity: EmployeeIdentity): List<DepartmentAssignmentDto> {
+        return db.values.filter { it.employeeId == employeeIdentity.employeeId }
+            .map {
+                DepartmentAssignmentDto(
+                    it.employeeDepartmentAssignmentId,
+                    it.startDate,
+                    it.endDate,
+                    it.departmentId,
+                    "부서",
+                )
             }
     }
 

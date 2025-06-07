@@ -16,7 +16,7 @@ sealed class EmployeeDepartmentAssignmentEntityFixture(
 ) : EmployeeDepartmentAssignmentModel {
     data object 기본 : EmployeeDepartmentAssignmentEntityFixture()
 
-    fun toEntity(): EmployeeDepartmentAssignmentEntity =
+    fun toEntity(departmentId: Long = this.departmentId): EmployeeDepartmentAssignmentEntity =
         EmployeeDepartmentAssignmentEntity(
             employeeId,
             departmentId,

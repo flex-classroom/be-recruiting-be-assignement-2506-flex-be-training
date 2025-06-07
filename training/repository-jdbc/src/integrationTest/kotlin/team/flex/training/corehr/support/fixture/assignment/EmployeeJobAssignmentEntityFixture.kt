@@ -8,7 +8,7 @@ import java.time.LocalDate
 sealed class EmployeeJobAssignmentEntityFixture(
     override val employeeJobAssignmentId: Long = 0,
     override val employeeId: Long = 0,
-    override val jobRoleId: Long = 0,
+    override val jobRoleId: Long = 1,
     override val startDate: LocalDate = LocalDate.parse("2025-01-01"),
     override val endDate: LocalDate = LocalDate.parse("2025-01-31"),
     override val createdAt: Instant = Instant.now(),
@@ -16,7 +16,7 @@ sealed class EmployeeJobAssignmentEntityFixture(
 ) : EmployeeJobAssignmentModel {
     data object 기본 : EmployeeJobAssignmentEntityFixture()
 
-    fun toEntity(): EmployeeJobAssignmentEntity =
+    fun toEntity(jobRoleId: Long = this.jobRoleId): EmployeeJobAssignmentEntity =
         EmployeeJobAssignmentEntity(
             employeeId,
             jobRoleId,

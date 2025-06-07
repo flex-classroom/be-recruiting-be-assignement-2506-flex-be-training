@@ -14,4 +14,6 @@ sealed class EmployeeJobAssignmentEntityFixture(
     override val updatedAt: Instant = Instant.now(),
 ) : EmployeeJobAssignmentModel {
     data object 기본 : EmployeeJobAssignmentEntityFixture()
+    class `날짜 지정`(startDate: LocalDate, endDate: LocalDate) :
+        EmployeeJobAssignmentEntityFixture(startDate = startDate, endDate = endDate)
 }
