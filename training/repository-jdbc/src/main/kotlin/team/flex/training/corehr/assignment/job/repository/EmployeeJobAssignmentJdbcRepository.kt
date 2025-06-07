@@ -2,9 +2,9 @@ package team.flex.training.corehr.assignment.job.repository
 
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
-import team.flex.training.corehr.assignment.job.EmployeeJobAssignment
 import team.flex.training.corehr.assignment.job.EmployeeJobAssignmentModel
 import team.flex.training.corehr.assignment.job.EmployeeJobAssignmentRepository
+import team.flex.training.corehr.assignment.job.dto.JobRoleAssignmentDto
 import team.flex.training.corehr.employee.EmployeeIdentity
 import java.time.LocalDate
 
@@ -28,12 +28,24 @@ interface EmployeeJobAssignmentJdbcRepository : CrudRepository<EmployeeJobAssign
 
     @Query(
         """
-            select * 
-            from employee_job_assignment eja 
-            where eja.employee_id = :employeeId 
-                and (:targetDate BETWEEN eja.start_date AND eja.end_date)"""
+            select eja.id, eja.start_date, eja.end_date, eja.job_role_id, jr.name as job_name
+            from employee_job_assignment eja
+            join job_role jr on eja.job_role_id = jr.id
+            where eja.employee_id = :employeeId
+                and (:targetDate BETWEEN eja.start_date AND eja.end_date)""",
     )
-    fun findByEmployeeIdAndDateBetween(employeeId: Long, targetDate: LocalDate): EmployeeJobAssignmentEntity?
+    fun findByEmployeeIdAndDateBetween(employeeId: Long, targetDate: LocalDate): JobRoleAssignmentDto?
+
+    @Query(
+        """
+            select eja.id, eja.start_date, eja.end_date, eja.job_role_id, jr.name as job_name
+            from employee_job_assignment eja
+            join job_role jr on eja.job_role_id = jr.id
+            where eja.employee_id = :employeeId
+            ;
+        """,
+    )
+    fun findByEmployeeId(employeeId: Long): List<JobRoleAssignmentDto>
 }
 
 class EmployeeJobAssignmentRepositoryImpl(
@@ -56,26 +68,17 @@ class EmployeeJobAssignmentRepositoryImpl(
     override fun findByEmployeeIdAndDateBetween(
         employeeIdentity: EmployeeIdentity,
         targetDate: LocalDate,
-    ): EmployeeJobAssignmentModel? {
-        return employeeJobAssignmentJdbcRepository.findByEmployeeIdAndDateBetween(
+    ): JobRoleAssignmentDto? =
+        employeeJobAssignmentJdbcRepository.findByEmployeeIdAndDateBetween(
             employeeIdentity.employeeId,
             targetDate,
-        )?.toModel()
-    }
+        )
+
+    override fun findByEmployeeId(employeeIdentity: EmployeeIdentity): List<JobRoleAssignmentDto> =
+        employeeJobAssignmentJdbcRepository.findByEmployeeId(employeeIdentity.employeeId)
 
     private fun EmployeeJobAssignmentModel.toEntity(): EmployeeJobAssignmentEntity =
         EmployeeJobAssignmentEntity(
-            employeeId = employeeId,
-            jobRoleId = jobRoleId,
-            startDate = startDate,
-            endDate = endDate,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
-        )
-
-    private fun EmployeeJobAssignmentEntity.toModel(): EmployeeJobAssignmentModel =
-        EmployeeJobAssignment(
-            employeeJobAssignmentId = employeeJobAssignmentId,
             employeeId = employeeId,
             jobRoleId = jobRoleId,
             startDate = startDate,

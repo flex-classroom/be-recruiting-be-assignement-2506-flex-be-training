@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignment
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentModel
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentRepository
+import team.flex.training.corehr.assignment.department.dto.DepartmentAssignmentDto
 import team.flex.training.corehr.employee.EmployeeIdentity
 import java.time.LocalDate
 
@@ -28,13 +29,26 @@ interface EmployeeDepartmentAssignmentJdbcRepository : CrudRepository<EmployeeDe
 
     @Query(
         """
-            select * 
-            from employee_department_assignment eda 
+            select eda.id, eda.start_date, eda.end_date, eda.department_id, d.name as department_name
+            from employee_department_assignment eda
+            join department d on eda.department_id = d.id
             where eda.employee_id = :employeeId 
                 and (:targetDate between eda.start_date and eda.end_date)
         """,
     )
-    fun findByEmployeeIdAndDateBetween(employeeId: Long, targetDate: LocalDate): EmployeeDepartmentAssignmentEntity?
+    fun findByEmployeeIdAndDateBetween(employeeId: Long, targetDate: LocalDate): DepartmentAssignmentDto?
+
+
+    @Query(
+        """
+            select eda.id, eda.start_date, eda.end_date, eda.department_id, d.name as department_name
+            from employee_department_assignment eda
+            join department d on eda.department_id = d.id
+            where eda.employee_id = :employeeId
+            ;
+        """,
+    )
+    fun findByEmployeeId(employeeId: Long): List<DepartmentAssignmentDto>
 }
 
 class EmployeeDepartmentAssignmentRepositoryImpl(
@@ -57,12 +71,14 @@ class EmployeeDepartmentAssignmentRepositoryImpl(
     override fun findByEmployeeIdAndDateBetween(
         employeeIdentity: EmployeeIdentity,
         targetDate: LocalDate,
-    ): EmployeeDepartmentAssignmentModel? {
-        return employeeDepartmentAssignmentJdbcRepository.findByEmployeeIdAndDateBetween(
+    ): DepartmentAssignmentDto? =
+        employeeDepartmentAssignmentJdbcRepository.findByEmployeeIdAndDateBetween(
             employeeIdentity.employeeId,
             targetDate,
-        )?.toModel()
-    }
+        )
+
+    override fun findByEmployeeId(employeeIdentity: EmployeeIdentity): List<DepartmentAssignmentDto> =
+        employeeDepartmentAssignmentJdbcRepository.findByEmployeeId(employeeIdentity.employeeId)
 
     private fun EmployeeDepartmentAssignmentModel.toEntity(): EmployeeDepartmentAssignmentEntity =
         EmployeeDepartmentAssignmentEntity(
