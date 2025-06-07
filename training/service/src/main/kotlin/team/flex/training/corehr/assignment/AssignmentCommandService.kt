@@ -7,8 +7,12 @@ import team.flex.training.corehr.assignment.job.EmployeeJobAssignment
 import team.flex.training.corehr.assignment.job.EmployeeJobAssignmentRepository
 import team.flex.training.corehr.company.CompanyIdentity
 import team.flex.training.corehr.company.CompanyLookUpService
+import team.flex.training.corehr.company.department.DepartmentIdentity
 import team.flex.training.corehr.company.department.DepartmentLookUpService
+import team.flex.training.corehr.company.department.of
+import team.flex.training.corehr.company.jobrole.JobRoleIdentity
 import team.flex.training.corehr.company.jobrole.JobRoleLookUpService
+import team.flex.training.corehr.company.jobrole.of
 import team.flex.training.corehr.company.of
 import team.flex.training.corehr.employee.EmployeeIdentity
 import team.flex.training.corehr.employee.EmployeeLookUpService
@@ -72,17 +76,17 @@ class AssignmentCommandServiceImpl(
 
         checkExistDepartmentAssignment(employeeIdentity, startDate, endDate)
 
+        val department = departmentLookUpService.get(companyIdentity, DepartmentIdentity.of(departmentId))
+
         val employeeDepartmentAssignment = EmployeeDepartmentAssignment(
             0,
             employeeIdentity.employeeId,
-            departmentId,
+            department.departmentId,
             startDate,
             endDate,
             now,
             now,
         )
-
-        departmentLookUpService.get(companyIdentity, employeeDepartmentAssignment)
         employeeDepartmentAssignmentRepository.save(employeeDepartmentAssignment)
     }
 
@@ -117,17 +121,17 @@ class AssignmentCommandServiceImpl(
 
         checkExistJobRoleAssignment(employeeIdentity, startDate, endDate)
 
+        val jobRole = jobRoleLookUpService.get(companyIdentity, JobRoleIdentity.of(jobRoleId))
+
         val employeeJobRoleAssignment = EmployeeJobAssignment(
             0,
             employeeIdentity.employeeId,
-            jobRoleId,
+            jobRole.jobRoleId,
             startDate,
             endDate,
             now,
             now,
         )
-
-        jobRoleLookUpService.get(companyIdentity, employeeJobRoleAssignment)
         employeeJobAssignmentRepository.save(employeeJobRoleAssignment)
     }
 
