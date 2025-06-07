@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.context.annotation.Import
@@ -120,5 +121,51 @@ class EmployeeJobAssignmentRepositoryIntegrationTest(
                     LocalDate.parse("2025-01-31"),
                 ),
             )
+    }
+
+    @Nested
+    @DisplayName("구성원 ID 가 일치하면서 특정 날짜에 직무 발령 정보를 조회할 때")
+    inner class findByEmployeeIdAndDateBetween {
+
+        @ParameterizedTest
+        @ValueSource(strings = ["2025-01-01", "2025-01-31"])
+        fun `구성원의 발령 정보가 존재하면 반환 한다`(targetDateString: String) {
+            // given
+            jdbcRepository.save(EmployeeJobAssignmentEntityFixture.기본.toEntity())
+            val employeeIdentity = EmployeeIdentity.of(0)
+            val targetDate = LocalDate.parse(targetDateString)
+
+            // when
+            val actual = cut.findByEmployeeIdAndDateBetween(employeeIdentity, targetDate)
+
+            // then
+            assertThat(actual).isNotNull
+                .extracting(
+                    "employeeId",
+                    "jobRoleId",
+                    "startDate",
+                    "endDate",
+                ).containsExactly(
+                    0L,
+                    0L,
+                    LocalDate.parse("2025-01-01"),
+                    LocalDate.parse("2025-01-31"),
+                )
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ["2024-12-31", "2025-02-01"])
+        fun `구성원의 발령 정보가 없다면 null 을 반환 한다`(targetDateString: String) {
+            // given
+            jdbcRepository.save(EmployeeJobAssignmentEntityFixture.기본.toEntity())
+            val employeeIdentity = EmployeeIdentity.of(0)
+            val targetDate = LocalDate.parse(targetDateString)
+
+            // when
+            val actual = cut.findByEmployeeIdAndDateBetween(employeeIdentity, targetDate)
+
+            // then
+            assertThat(actual).isNull()
+        }
     }
 }
