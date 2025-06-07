@@ -19,8 +19,8 @@ import team.flex.training.corehr.support.fake.employee.FakeEmployeeLookUpService
 import java.time.LocalDate
 
 class AssignmentCommandServiceImplTest : UTCTimeZoneSupport {
-    private val employeeLookUpService = FakeEmployeeLookUpService()
     private val companyLookUpService = FakeCompanyLookUpService()
+    private val employeeLookUpService = FakeEmployeeLookUpService()
     private val departmentLookUpService = FakeDepartmentLookUpService()
     private val jobRoleLookUpService = FakeJobRoleLookUpService()
     private val employeeDepartmentAssignmentRepository = FakeEmployeeDepartmentAssignmentRepository()
@@ -28,8 +28,8 @@ class AssignmentCommandServiceImplTest : UTCTimeZoneSupport {
 
     private val service: AssignmentCommandService = AssignmentCommandServiceImpl(
         TimeUtils.clock(),
-        employeeLookUpService,
         companyLookUpService,
+        employeeLookUpService,
         departmentLookUpService,
         jobRoleLookUpService,
         employeeDepartmentAssignmentRepository,

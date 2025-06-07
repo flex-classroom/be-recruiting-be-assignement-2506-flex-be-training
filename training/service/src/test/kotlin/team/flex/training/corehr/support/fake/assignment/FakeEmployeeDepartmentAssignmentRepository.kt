@@ -41,6 +41,17 @@ class FakeEmployeeDepartmentAssignmentRepository : EmployeeDepartmentAssignmentR
         return model
     }
 
+    override fun findByEmployeeIdAndDateBetween(
+        employeeIdentity: EmployeeIdentity,
+        targetDate: LocalDate
+    ): EmployeeDepartmentAssignmentModel? {
+        return db.values.filter { it.employeeId == employeeIdentity.employeeId }
+            .find {
+                (targetDate.isEqual(it.startDate) || targetDate.isAfter(it.startDate))
+                    && (targetDate.isEqual(it.endDate) || targetDate.isBefore(it.endDate))
+            }
+    }
+
     fun `부서 발령 생성`(
         employee: EmployeeModel = EmployeeFixture.기본,
         department: DepartmentModel = DepartmentFixture.기본,
