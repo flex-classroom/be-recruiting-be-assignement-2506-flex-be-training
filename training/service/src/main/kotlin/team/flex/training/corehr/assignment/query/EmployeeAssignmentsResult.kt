@@ -1,7 +1,7 @@
 package team.flex.training.corehr.assignment.query
 
-data class EmployeeAssignmentResult(
+data class EmployeeAssignmentsResult(
     val employee: EmployeeDto,
     val company: CompanyDto,
-    val assignment: AssignmentDto,
+    val assignments: List<AssignmentDto>,
 )

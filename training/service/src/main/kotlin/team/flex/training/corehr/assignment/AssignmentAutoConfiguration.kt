@@ -36,16 +36,12 @@ class AssignmentAutoConfiguration {
     fun assignmentQueryService(
         companyLookUpService: CompanyLookUpService,
         employeeLookUpService: EmployeeLookUpService,
-        departmentLookUpService: DepartmentLookUpService,
-        jobRoleLookUpService: JobRoleLookUpService,
         employeeDepartmentAssignmentRepository: EmployeeDepartmentAssignmentRepository,
         employeeJobAssignmentRepository: EmployeeJobAssignmentRepository,
     ): AssignmentQueryServiceImpl =
         AssignmentQueryServiceImpl(
             companyLookUpService,
             employeeLookUpService,
-            departmentLookUpService,
-            jobRoleLookUpService,
             employeeDepartmentAssignmentRepository,
             employeeJobAssignmentRepository,
         )

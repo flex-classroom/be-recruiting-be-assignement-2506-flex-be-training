@@ -2,19 +2,15 @@ package team.flex.training.corehr.assignment
 
 import team.flex.training.corehr.assignment.department.EmployeeDepartmentAssignmentRepository
 import team.flex.training.corehr.assignment.job.EmployeeJobAssignmentRepository
+import team.flex.training.corehr.assignment.query.AssignmentDto
 import team.flex.training.corehr.assignment.query.CompanyDto
 import team.flex.training.corehr.assignment.query.DepartmentAssignmentDto
 import team.flex.training.corehr.assignment.query.EmployeeAssignmentResult
+import team.flex.training.corehr.assignment.query.EmployeeAssignmentsResult
 import team.flex.training.corehr.assignment.query.EmployeeDto
 import team.flex.training.corehr.assignment.query.JobAssignmentDto
 import team.flex.training.corehr.company.CompanyIdentity
 import team.flex.training.corehr.company.CompanyLookUpService
-import team.flex.training.corehr.company.department.DepartmentIdentity
-import team.flex.training.corehr.company.department.DepartmentLookUpService
-import team.flex.training.corehr.company.department.of
-import team.flex.training.corehr.company.jobrole.JobRoleIdentity
-import team.flex.training.corehr.company.jobrole.JobRoleLookUpService
-import team.flex.training.corehr.company.jobrole.of
 import team.flex.training.corehr.company.of
 import team.flex.training.corehr.employee.EmployeeIdentity
 import team.flex.training.corehr.employee.EmployeeLookUpService
@@ -28,13 +24,16 @@ interface AssignmentQueryService {
         employeeId: Long,
         targetDate: LocalDate,
     ): EmployeeAssignmentResult
+
+    fun getAssignments(
+        companyId: Long,
+        employeeId: Long,
+    ): EmployeeAssignmentsResult
 }
 
 class AssignmentQueryServiceImpl(
     private val companyLookUpService: CompanyLookUpService,
     private val employeeLookUpService: EmployeeLookUpService,
-    private val departmentLookUpService: DepartmentLookUpService,
-    private val jobRoleLookUpService: JobRoleLookUpService,
     private val employeeDepartmentAssignmentRepository: EmployeeDepartmentAssignmentRepository,
     private val employeeJobAssignmentRepository: EmployeeJobAssignmentRepository,
 ) : AssignmentQueryService {
@@ -52,8 +51,7 @@ class AssignmentQueryServiceImpl(
         return EmployeeAssignmentResult(
             EmployeeDto.from(employee),
             CompanyDto.from(company),
-            departmentAssignment,
-            jobAssignment,
+            AssignmentDto.of(departmentAssignment, jobAssignment),
         )
     }
 
@@ -65,10 +63,12 @@ class AssignmentQueryServiceImpl(
             employeeDepartmentAssignmentRepository.findByEmployeeIdAndDateBetween(employee, targetDate)
                 ?: return null
 
-        val department =
-            departmentLookUpService.get(employee, DepartmentIdentity.of(departmentAssignment.departmentId))
-
-        return DepartmentAssignmentDto.of(departmentAssignment, department)
+        return DepartmentAssignmentDto(
+            departmentAssignment.startDate,
+            departmentAssignment.endDate,
+            departmentAssignment.departmentId,
+            departmentAssignment.departmentName,
+        )
     }
 
     private fun queryJobRoleAssignment(
@@ -79,8 +79,55 @@ class AssignmentQueryServiceImpl(
             employeeJobAssignmentRepository.findByEmployeeIdAndDateBetween(employee, targetDate)
                 ?: return null
 
-        val jobRole = jobRoleLookUpService.get(employee, JobRoleIdentity.of(jobAssignment.jobRoleId))
+        return JobAssignmentDto(
+            jobAssignment.startDate,
+            jobAssignment.endDate,
+            jobAssignment.jobRoleId,
+            jobAssignment.jobName,
+        )
+    }
 
-        return JobAssignmentDto.of(jobAssignment, jobRole)
+    override fun getAssignments(
+        companyId: Long,
+        employeeId: Long,
+    ): EmployeeAssignmentsResult {
+        val company = companyLookUpService.get(CompanyIdentity.of(companyId))
+        val employee = employeeLookUpService.get(company, EmployeeIdentity.of(employeeId))
+
+        val assignments = queryAssignments(employee)
+
+        return EmployeeAssignmentsResult(
+            EmployeeDto.from(employee),
+            CompanyDto.from(company),
+            assignments,
+        )
+    }
+
+    private fun queryAssignments(employee: EmployeeModel): List<AssignmentDto> {
+        val departmentAssignments = employeeDepartmentAssignmentRepository.findByEmployeeId(employee)
+            .map {
+                AssignmentDto(
+                    it.startDate,
+                    it.endDate,
+                    it.departmentId,
+                    it.departmentName,
+                )
+            }
+
+        val jobAssignments = employeeJobAssignmentRepository.findByEmployeeId(employee)
+            .map {
+                AssignmentDto(
+                    it.startDate,
+                    it.endDate,
+                    jobRoleId = it.jobRoleId,
+                    jobRoleName = it.jobName,
+                )
+            }
+
+        return (departmentAssignments union jobAssignments)
+            .sortedWith(
+                compareByDescending(AssignmentDto::startDate)
+                    .thenByDescending(AssignmentDto::endDate),
+            )
     }
 }
