@@ -20,6 +20,9 @@ insert into `job_role` (id, company_id, name, created_at, updated_at) values (3,
 insert into `job_role` (id, company_id, name, created_at, updated_at) values (4, 1, 'Product Manager', now(), now());
 insert into `job_role` (id, company_id, name, created_at, updated_at) values (5, 2, 'Backend Developer', now(), now());
 insert into `job_role` (id, company_id, name, created_at, updated_at) values (6, 2, 'Frontend Developer', now(), now());
+insert into `job_role` (id, company_id, name, created_at, updated_at) values (7, 2, 'Product Engineer', now(), now());
+insert into `job_role` (id, company_id, name, created_at, updated_at) values (8, 2, 'Product Manager', now(), now());
+insert into `job_role` (id, company_id, name, created_at, updated_at) values (9, 2, 'Backend Engineer', now(), now());
 
 insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (1, 1, null, 'CEO', now(), now());
 insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (2, 1, 1, 'Core Squad', now(), now());
@@ -30,3 +33,5 @@ insert into `department` (id, company_id, parent_id, name, created_at, updated_a
 insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (7, 2, 6, '서버 개발1팀', now(), now());
 insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (8, 2, 6, '서버 개발2팀', now(), now());
 insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (9, 2, 6, '앱 개발팀', now(), now());
+insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (10, 2, 6, '전략기획팀', now(), now());
+insert into `department` (id, company_id, parent_id, name, created_at, updated_at) values (11 ,2, 5, '기획팀', now(), now());
