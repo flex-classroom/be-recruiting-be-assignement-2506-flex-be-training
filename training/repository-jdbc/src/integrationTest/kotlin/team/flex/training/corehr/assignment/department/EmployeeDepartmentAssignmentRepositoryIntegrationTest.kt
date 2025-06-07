@@ -14,13 +14,17 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.TestConstructor
 import team.flex.training.corehr.assignment.department.repository.EmployeeDepartmentAssignmentJdbcRepository
 import team.flex.training.corehr.assignment.department.repository.EmployeeDepartmentAssignmentRepositoryAutoConfiguration
+import team.flex.training.corehr.company.department.repository.DepartmentJdbcRepository
+import team.flex.training.corehr.company.department.repository.DepartmentRepositoryAutoConfiguration
 import team.flex.training.corehr.employee.EmployeeIdentity
 import team.flex.training.corehr.employee.of
 import team.flex.training.corehr.support.fixture.assignment.EmployeeDepartmentAssignmentEntityFixture
+import team.flex.training.corehr.support.fixture.company.DepartmentFixture
 import java.time.LocalDate
 
 @Import(
     EmployeeDepartmentAssignmentRepositoryAutoConfiguration::class,
+    DepartmentRepositoryAutoConfiguration::class,
 )
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -28,6 +32,7 @@ import java.time.LocalDate
 class EmployeeDepartmentAssignmentRepositoryIntegrationTest(
     private val cut: EmployeeDepartmentAssignmentRepository,
     private val jdbcRepository: EmployeeDepartmentAssignmentJdbcRepository,
+    private val departmentRepository: DepartmentJdbcRepository,
 ) {
 
     @Nested
@@ -131,7 +136,8 @@ class EmployeeDepartmentAssignmentRepositoryIntegrationTest(
         @ValueSource(strings = ["2025-01-01", "2025-01-31"])
         fun `구성원의 발령 정보가 존재하면 반환 한다`(targetDateString: String) {
             // given
-            jdbcRepository.save(EmployeeDepartmentAssignmentEntityFixture.기본.toEntity())
+            val department = departmentRepository.save(DepartmentFixture.기본.toEntity())
+            jdbcRepository.save(EmployeeDepartmentAssignmentEntityFixture.기본.toEntity(department.id))
             val employeeIdentity = EmployeeIdentity.of(0)
             val targetDate = LocalDate.parse(targetDateString)
 
@@ -141,15 +147,15 @@ class EmployeeDepartmentAssignmentRepositoryIntegrationTest(
             // then
             assertThat(actual).isNotNull
                 .extracting(
-                    "employeeId",
-                    "departmentId",
                     "startDate",
                     "endDate",
+                    "departmentId",
+                    "departmentName",
                 ).containsExactly(
-                    0L,
-                    0L,
                     LocalDate.parse("2025-01-01"),
                     LocalDate.parse("2025-01-31"),
+                    department.id,
+                    "부서 1",
                 )
         }
 
@@ -157,7 +163,8 @@ class EmployeeDepartmentAssignmentRepositoryIntegrationTest(
         @ValueSource(strings = ["2024-12-31", "2025-02-01"])
         fun `구성원의 발령 정보가 없다면 null 을 반환 한다`(targetDateString: String) {
             // given
-            jdbcRepository.save(EmployeeDepartmentAssignmentEntityFixture.기본.toEntity())
+            val department = departmentRepository.save(DepartmentFixture.기본.toEntity())
+            jdbcRepository.save(EmployeeDepartmentAssignmentEntityFixture.기본.toEntity(department.id))
             val employeeIdentity = EmployeeIdentity.of(0)
             val targetDate = LocalDate.parse(targetDateString)
 
@@ -166,6 +173,50 @@ class EmployeeDepartmentAssignmentRepositoryIntegrationTest(
 
             // then
             assertThat(actual).isNull()
+        }
+    }
+
+    @Nested
+    @DisplayName("구성원 ID 로 해당 구성원의 모든 부서 변경 이력을 조회할 때")
+    inner class findByEmployeeId {
+
+        @Test
+        fun `부서 변경 이력이 존재하면 모든 이력을 반환 한다`() {
+            // given
+            val department = departmentRepository.save(DepartmentFixture.기본.toEntity())
+            jdbcRepository.save(EmployeeDepartmentAssignmentEntityFixture.기본.toEntity(department.id))
+            val employeeIdentity = EmployeeIdentity.of(0)
+
+            // when
+            val actual = cut.findByEmployeeId(employeeIdentity)
+
+            // then
+            assertThat(actual).hasSize(1)
+                .extracting(
+                    "startDate",
+                    "endDate",
+                    "departmentId",
+                    "departmentName",
+                ).containsExactly(
+                    Tuple.tuple(
+                        LocalDate.parse("2025-01-01"),
+                        LocalDate.parse("2025-01-31"),
+                        department.id,
+                        "부서 1",
+                    ),
+                )
+        }
+
+        @Test
+        fun `부서 변경 이력이 없다면 빈 List 를 반환 한다`() {
+            // given
+            val employeeIdentity = EmployeeIdentity.of(0)
+
+            // when
+            val actual = cut.findByEmployeeId(employeeIdentity)
+
+            // then
+            assertThat(actual).isEmpty()
         }
     }
 }
