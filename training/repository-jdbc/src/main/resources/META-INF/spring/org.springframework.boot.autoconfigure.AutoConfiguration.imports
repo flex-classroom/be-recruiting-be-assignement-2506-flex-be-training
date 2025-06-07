@@ -4,4 +4,5 @@ team.flex.training.corehr.company.repository.CompanyRepositoryAutoConfiguration
 team.flex.training.corehr.employee.repository.EmployeeRepositoryAutoConfiguration
 team.flex.training.corehr.assignment.department.repository.EmployeeDepartmentAssignmentRepositoryAutoConfiguration
 team.flex.training.corehr.assignment.job.repository.EmployeeJobAssignmentRepositoryAutoConfiguration
-team.flex.training.corehr.global.transaction.TransactionConfig
+team.flex.training.corehr.global.transaction.TransactionConfiguration
+team.flex.training.corehr.global.config.RowMapperConfiguration
