@@ -26,19 +26,16 @@ interface AssignmentCommandService {
 @Transactional
 class AssignmentCommandServiceImpl(
     private val clock: Clock,
-    private val employeeLookUpService: EmployeeLookUpService,
     private val companyLookUpService: CompanyLookUpService,
+    private val employeeLookUpService: EmployeeLookUpService,
     private val departmentLookUpService: DepartmentLookUpService,
     private val jobRoleLookUpService: JobRoleLookUpService,
     private val employeeDepartmentAssignmentRepository: EmployeeDepartmentAssignmentRepository,
     private val employeeJobAssignmentRepository: EmployeeJobAssignmentRepository,
 ) : AssignmentCommandService {
     override fun appointJob(command: EmployeeAssignmentCreateCommand) {
-        val employeeIdentity = EmployeeIdentity.of(command.employeeId)
-        val companyIdentity = CompanyIdentity.of(command.companyId)
-
-        val employee = employeeLookUpService.get(companyIdentity, employeeIdentity)
-        val company = companyLookUpService.get(companyIdentity)
+        val company = companyLookUpService.get(CompanyIdentity.of(command.companyId))
+        val employee = employeeLookUpService.get(company, EmployeeIdentity.of(command.employeeId))
 
         val now = Instant.now(clock)
 

@@ -15,8 +15,8 @@ class AssignmentAutoConfiguration {
     @Bean
     fun assignmentCommandService(
         clock: Clock,
-        employeeLookUpService: EmployeeLookUpService,
         companyLookUpService: CompanyLookUpService,
+        employeeLookUpService: EmployeeLookUpService,
         departmentLookUpService: DepartmentLookUpService,
         jobRoleLookUpService: JobRoleLookUpService,
         employeeDepartmentAssignmentRepository: EmployeeDepartmentAssignmentRepository,
@@ -24,8 +24,26 @@ class AssignmentAutoConfiguration {
     ): AssignmentCommandService =
         AssignmentCommandServiceImpl(
             clock,
-            employeeLookUpService,
             companyLookUpService,
+            employeeLookUpService,
+            departmentLookUpService,
+            jobRoleLookUpService,
+            employeeDepartmentAssignmentRepository,
+            employeeJobAssignmentRepository,
+        )
+
+    @Bean
+    fun assignmentQueryService(
+        companyLookUpService: CompanyLookUpService,
+        employeeLookUpService: EmployeeLookUpService,
+        departmentLookUpService: DepartmentLookUpService,
+        jobRoleLookUpService: JobRoleLookUpService,
+        employeeDepartmentAssignmentRepository: EmployeeDepartmentAssignmentRepository,
+        employeeJobAssignmentRepository: EmployeeJobAssignmentRepository,
+    ): AssignmentQueryServiceImpl =
+        AssignmentQueryServiceImpl(
+            companyLookUpService,
+            employeeLookUpService,
             departmentLookUpService,
             jobRoleLookUpService,
             employeeDepartmentAssignmentRepository,
