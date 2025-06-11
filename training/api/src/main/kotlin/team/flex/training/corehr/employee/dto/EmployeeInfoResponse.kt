@@ -4,17 +4,37 @@
 
 package team.flex.training.corehr.employee.dto
 
+import team.flex.training.corehr.assignment.query.AssignmentDto
+import team.flex.training.corehr.assignment.query.CompanyDto
+import team.flex.training.corehr.assignment.query.EmployeeAssignmentResult
+import team.flex.training.corehr.assignment.query.EmployeeAssignmentsResult
 import java.time.LocalDate
 
 class EmployeeAssignmentResponse(
     val employee: EmployeeDto,
     val assignment: AssignmentInfoDto,
-)
+) {
+    companion object {
+        fun of(result: EmployeeAssignmentResult): EmployeeAssignmentResponse =
+            EmployeeAssignmentResponse(
+                EmployeeDto.of(result.employee, result.company),
+                AssignmentInfoDto.from(result.assignment),
+            )
+    }
+}
 
 class EmployeeAssignmentHistoryResponse(
     val employee: EmployeeDto,
     val assignments: List<AssignmentInfoDto>,
-)
+) {
+    companion object {
+        fun of(result: EmployeeAssignmentsResult): EmployeeAssignmentHistoryResponse =
+            EmployeeAssignmentHistoryResponse(
+                EmployeeDto.of(result.employee, result.company),
+                result.assignments.map(AssignmentInfoDto::from),
+            )
+    }
+}
 
 class EmployeeDto(
     val employeeId: Long,
@@ -22,7 +42,21 @@ class EmployeeDto(
     val employeeName: String,
     val companyId: Long,
     val companyName: String,
-)
+) {
+    companion object {
+        fun of(
+            employee: team.flex.training.corehr.assignment.query.EmployeeDto,
+            company: CompanyDto,
+        ): EmployeeDto =
+            EmployeeDto(
+                employee.employeeId,
+                employee.employeeNumber,
+                employee.employeeName,
+                company.companyId,
+                company.companyName,
+            )
+    }
+}
 
 class AssignmentInfoDto(
     val startDate: LocalDate,
@@ -31,4 +65,16 @@ class AssignmentInfoDto(
     val departmentName: String?,
     val jobRoleId: Long?,
     val jobRoleName: String?,
-)
+) {
+    companion object {
+        fun from(assignmentDto: AssignmentDto): AssignmentInfoDto =
+            AssignmentInfoDto(
+                assignmentDto.startDate,
+                assignmentDto.endDate,
+                assignmentDto.departmentId,
+                assignmentDto.departmentName,
+                assignmentDto.jobRoleId,
+                assignmentDto.jobRoleName,
+            )
+    }
+}

@@ -42,3 +42,27 @@ CREATE TABLE `employee`
     `updated_at`      DATETIME    NOT NULL
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `employee_department_assignment`
+(
+    `id`              BIGINT      NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `employee_id`     BIGINT      NOT NULL,
+    `department_id`   BIGINT      NOT NULL,
+    `start_date`      DATE        NOT NULL,
+    `end_date`        DATE        NOT NULL,
+    `created_at`      DATETIME    NOT NULL,
+    `updated_at`      DATETIME    NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `employee_job_assignment`
+(
+    `id`              BIGINT      NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `employee_id`     BIGINT      NOT NULL,
+    `job_role_id`     BIGINT      NOT NULL,
+    `start_date`      DATE        NOT NULL,
+    `end_date`        DATE        NOT NULL,
+    `created_at`      DATETIME    NOT NULL,
+    `updated_at`      DATETIME    NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;

@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import team.flex.training.corehr.assignment.AssignmentCommandService
+import team.flex.training.corehr.assignment.AssignmentQueryService
+import team.flex.training.corehr.assignment.command.EmployeeAssignmentCreateCommand
 import team.flex.training.corehr.employee.dto.EmployeeAssignmentCreateRequest
 import team.flex.training.corehr.employee.dto.EmployeeAssignmentHistoryResponse
 import team.flex.training.corehr.employee.dto.EmployeeAssignmentResponse
@@ -19,7 +22,10 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v2/corehr")
-class EmployeeApiController() {
+class EmployeeApiController(
+    private val assignmentCommandService: AssignmentCommandService,
+    private val assignmentQueryService: AssignmentQueryService,
+) {
 
     @PostMapping("/companies/{companyId}/employees/{employeeId}/employee-assignment")
     @Operation(
@@ -30,9 +36,16 @@ class EmployeeApiController() {
         @PathVariable companyId: Long,
         @PathVariable employeeId: Long,
         @RequestBody request: EmployeeAssignmentCreateRequest,
-    ) {
-        TODO("구현해주세요")
-    }
+    ) = assignmentCommandService.appointJob(
+        EmployeeAssignmentCreateCommand(
+            companyId,
+            employeeId,
+            request.startDate,
+            request.endDate,
+            request.jobRoleId,
+            request.departmentId,
+        ),
+    )
 
     @GetMapping("/companies/{companyId}/employees/{employeeId}/employee-assignment")
     @Operation(
@@ -44,7 +57,9 @@ class EmployeeApiController() {
         @PathVariable employeeId: Long,
         @RequestParam targetDate: LocalDate,
     ): EmployeeAssignmentResponse {
-        TODO("구현해주세요")
+        val assignmentResult = assignmentQueryService.getAssignment(companyId, employeeId, targetDate)
+
+        return EmployeeAssignmentResponse.of(assignmentResult)
     }
 
     @GetMapping("/companies/{companyId}/employees/{employeeId}/employee-assignment-history")
@@ -56,6 +71,8 @@ class EmployeeApiController() {
         @PathVariable companyId: Long,
         @PathVariable employeeId: Long,
     ): EmployeeAssignmentHistoryResponse {
-        TODO("구현해주세요")
+        val assignmentsResult = assignmentQueryService.getAssignments(companyId, employeeId)
+
+        return EmployeeAssignmentHistoryResponse.of(assignmentsResult)
     }
 }
