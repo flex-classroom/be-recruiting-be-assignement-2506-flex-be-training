@@ -8,7 +8,6 @@ dependencies {
     implementation(project(":training:repository-jdbc"))
 
     implementation("org.testcontainers:mysql")
-    integrationTestImplementation(project(":training:infrastructure"))
     runtimeOnly("com.mysql:mysql-connector-j") {
         exclude(group = "com.google.protobuf", module = "protobuf-java")
     }
